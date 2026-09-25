@@ -2,7 +2,11 @@ package com.eventbooking.tickets.service;
 
 import com.eventbooking.tickets.dto.EventCreatedto;
 import com.eventbooking.tickets.entity.Event;
+import com.eventbooking.tickets.entity.User;
 import com.eventbooking.tickets.repository.EventRepository;
+import com.eventbooking.tickets.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -10,9 +14,11 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    public EventService(EventRepository eventRepository) {
+    public EventService(EventRepository eventRepository, UserRepository userRepository) {
         this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
     }
     //create the event
     public Event createEvent(EventCreatedto eventCreateDTO) {
@@ -24,6 +30,11 @@ public class EventService {
         event.setContactNumber(eventCreateDTO.getContactNumber());
         event.setOrganizerName(eventCreateDTO.getOrganizerName());
         event.setEventDate(eventCreateDTO.getEventDate());
+        event.setEventDescription(eventCreateDTO.getEventDescription());
+        String organizerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User organizer = userRepository.findByEmail(organizerEmail)
+            .orElseThrow(() -> new IllegalStateException("Authenticated organizer was not found."));
+        event.setOrganizer(organizer);
 
 
         return eventRepository.save(event);
@@ -32,6 +43,15 @@ public class EventService {
     public List<Event> getEvents() {
         return eventRepository.findAll();
     }
+
+    public List<Event> getOrganizerEvents(String authenticatedEmail) {
+        User organizer = userRepository.findByEmail(authenticatedEmail)
+                .filter(user -> "EVENT_ORGANIZER".equals(user.getRole()))
+                .orElseThrow(() -> new AccessDeniedException("An event organizer account is required."));
+
+        return eventRepository.findByOrganizer_Id(organizer.getId());
+    }
+
     //GET BY EVENTID
     public Event getEventById(Long id) {
         return eventRepository.findById(id).orElse(null);
@@ -50,6 +70,9 @@ public class EventService {
         event.setContactNumber(eventCreatedto.getContactNumber());
         event.setOrganizerName(eventCreatedto.getOrganizerName());
         event.setEventDate(eventCreatedto.getEventDate());
+        if (eventCreatedto.getEventDescription() != null) {
+            event.setEventDescription(eventCreatedto.getEventDescription());
+        }
         eventRepository.save(event);
 
         return "Event updated successfully";

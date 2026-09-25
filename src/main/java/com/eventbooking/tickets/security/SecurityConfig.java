@@ -40,6 +40,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/events/organizer/**")
+                        .hasRole("EVENT_ORGANIZER")
+
                         // Anyone can view events
                         .requestMatchers(HttpMethod.GET, "/events/**")
                         .permitAll()
@@ -54,6 +57,10 @@ public class SecurityConfig {
 
                         // Only EVENT_ORGANIZER can delete events
                         .requestMatchers(HttpMethod.DELETE, "/events/**")
+                        .hasRole("EVENT_ORGANIZER")
+
+                        // Organizers can only request statistics scoped to their account
+                        .requestMatchers(HttpMethod.GET, "/bookings/organizer/statistics")
                         .hasRole("EVENT_ORGANIZER")
 
                         // Only CUSTOMER can access bookings

@@ -1,5 +1,6 @@
 package com.eventbooking.tickets.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 
@@ -16,6 +17,14 @@ public class Event {
     private String contactNumber;
     private String organizerName;
     private String eventDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String eventDescription;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organizer_id")
+    private User organizer;
+
     // Getters and Setters
 
     public Long getId() {
@@ -63,5 +72,22 @@ public class Event {
 
     public void setEventDate(String eventDate) {
         this.eventDate = eventDate;
+    }
+
+    public String getEventDescription() {
+        return eventDescription;
+    }
+
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
+    }
+
+    @JsonIgnore
+    public User getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(User organizer) {
+        this.organizer = organizer;
     }
 }

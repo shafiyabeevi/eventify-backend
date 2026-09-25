@@ -7,6 +7,7 @@ public class EventCreatedto {
     private double ticketPrice;
     private String contactNumber;
     private String organizerName;
+    private String eventDescription;
 
     public String getEventName() {
         return eventName;
@@ -45,5 +46,13 @@ public class EventCreatedto {
 
     public void setEventDate(String eventDate) {
         this.eventDate = eventDate;
+    }
+
+    public String getEventDescription() {
+        return eventDescription;
+    }
+
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
     }
 }
