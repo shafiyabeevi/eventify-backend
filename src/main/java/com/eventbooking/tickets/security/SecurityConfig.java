@@ -23,6 +23,10 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+
+                // Enable CORS for the deployed React frontend
+                .cors(cors -> {})
+
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
@@ -40,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
 
+                        // Organizer event APIs
                         .requestMatchers(HttpMethod.GET, "/events/organizer/**")
                         .hasRole("EVENT_ORGANIZER")
 
@@ -59,8 +64,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/events/**")
                         .hasRole("EVENT_ORGANIZER")
 
-                        // Organizers can only request statistics scoped to their account
-                        .requestMatchers(HttpMethod.GET, "/bookings/organizer/statistics")
+                        // Organizer statistics
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/bookings/organizer/statistics"
+                        )
                         .hasRole("EVENT_ORGANIZER")
 
                         // Only CUSTOMER can access bookings
